@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core.apps.CoreConfig'
+    
 ]
 
 MIDDLEWARE = [
@@ -54,11 +56,12 @@ ROOT_URLCONF = 'django_project.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],  # on peut ajouter un chemin global si besoin
+        'APP_DIRS': True,  # <-- important, permet de chercher dans core/templates
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -74,16 +77,22 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+      'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'backend',   # ex: 'unilink_db'
-        'USER': 'postgres',
-        'PASSWORD': 'kingsami',
-        'HOST': 'localhost',      # ou le nom du service Docker, ex: 'db'
-        'PORT': '5432',
+        'NAME': os.environ.get('POSTGRES_DB', 'backend'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'kingsami'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
+
 AUTH_USER_MODEL = 'core.User'
+# settings.py
+
+LOGIN_URL = '/login/'        # redirige vers /login/ quand non connecté
+LOGIN_REDIRECT_URL = '/core/'  # après login, redirige vers /core/ ou ta page d'accueil
+LOGOUT_REDIRECT_URL = '/login/'  # après logout, redirige vers login
 
 
 # Password validation
